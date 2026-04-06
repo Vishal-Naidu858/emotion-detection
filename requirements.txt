@@ -2,6 +2,6 @@ numpy
 pandas
 matplotlib
 seaborn
-opencv-python
+opencv-python-headless
 tensorflow
 scikit-learn
