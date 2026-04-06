@@ -1,0 +1,18 @@
+# Virtual environment — too large to upload
+.venv/
+venv/
+
+# Dataset files — too large for GitHub
+datasets/raw/
+datasets/processed/
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# Model file (optional — large file)
+models/emotion_model.h5
