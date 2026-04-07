@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}About — Emotion AI{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Pipeline Steps ── */
+.pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-bottom: 3rem;
+    position: relative;
+}
+.pipeline::before {
+    content: '';
+    position: absolute; top: 38px; left: 12.5%; right: 12.5%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--sad));
+    z-index: 0;
+}
+.pipeline-step {
+    text-align: center;
+    position: relative; z-index: 1;
+    padding: 0 0.5rem;
+}
+.pipeline-step .step-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    margin: 0 auto 0.8rem;
+    background: var(--bg-card);
+    border: 2px solid var(--accent);
+}
+.pipeline-step h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem; font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+.pipeline-step p { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ── Application Cards ── */
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+}
+.app-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: all var(--transition);
+}
+.app-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.app-card .app-icon { font-size: 2rem; margin-bottom: 0.7rem; display: block; }
+.app-card h4 {
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+.app-card p { font-size: 0.87rem; color: var(--text-muted); line-height: 1.5; }
+
+/* ── Tech Stack ── */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+}
+.tech-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+.tech-card h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem; font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.8rem;
+}
+.tech-card ul {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.4rem;
+}
+.tech-card li {
+    font-size: 0.9rem; color: var(--text-muted);
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.tech-card li::before { content: '→'; color: var(--accent); }
+
+/* ── CTA ── */
+.cta-banner {
+    background: linear-gradient(135deg,
+        rgba(255,215,0,0.08) 0%, rgba(255,152,0,0.05) 100%);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+}
+.cta-banner h2 {
+    font-family: var(--font-display);
+    font-size: 2rem; font-weight: 800;
+    margin-bottom: 0.8rem;
+}
+.cta-banner p { color: var(--text-muted); margin-bottom: 1.8rem; }
+.cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 768px) {
+    .pipeline       { grid-template-columns: repeat(2,1fr); }
+    .pipeline::before { display: none; }
+    .app-grid       { grid-template-columns: 1fr 1fr; }
+    .tech-grid      { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .app-grid       { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header fade-in">
+    <h1>ℹ️ <span class="accent">About</span> This System</h1>
+    <p>How it works, why it matters, and where it can be applied.</p>
+</div>
+
+<!-- ── How it Works ── -->
+<p class="section-title">Detection Pipeline</p>
+<div class="pipeline fade-in">
+    <div class="pipeline-step">
+        <div class="step-icon">📷</div>
+        <h4>Capture</h4>
+        <p>Webcam frame or uploaded image is received</p>
+    </div>
+    <div class="pipeline-step">
+        <div class="step-icon">🔍</div>
+        <h4>Detect Face</h4>
+        <p>Haar Cascade locates all faces in the image</p>
+    </div>
+    <div class="pipeline-step">
+        <div class="step-icon">🧠</div>
+        <h4>Classify</h4>
+        <p>CNN model predicts emotion probabilities</p>
+    </div>
+    <div class="pipeline-step">
+        <div class="step-icon">📊</div>
+        <h4>Display</h4>
+        <p>Results shown with labels and confidence</p>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── Applications ── -->
+<p class="section-title">Real-World Applications</p>
+<div class="app-grid fade-in">
+    <div class="app-card" style="border-left:3px solid #FF4444;">
+        <span class="app-icon">🏥</span>
+        <h4>Mental Health</h4>
+        <p>Monitor patient emotions during therapy sessions to assist clinicians with objective data.</p>
+    </div>
+    <div class="app-card" style="border-left:3px solid #FF9800;">
+        <span class="app-icon">🚗</span>
+        <h4>Driver Safety</h4>
+        <p>Detect drowsiness, stress or distraction in drivers to prevent accidents in real time.</p>
+    </div>
+    <div class="app-card" style="border-left:3px solid #2196F3;">
+        <span class="app-icon">📚</span>
+        <h4>E-Learning</h4>
+        <p>Detect confusion or boredom in students to adapt course content dynamically.</p>
+    </div>
+    <div class="app-card" style="border-left:3px solid #4CAF50;">
+        <span class="app-icon">🛒</span>
+        <h4>Retail Analytics</h4>
+        <p>Analyze customer reactions to products and store layouts for better UX design.</p>
+    </div>
+    <div class="app-card" style="border-left:3px solid #9C27B0;">
+        <span class="app-icon">🎮</span>
+        <h4>Gaming</h4>
+        <p>Adapt game difficulty and storyline based on the player's real emotional state.</p>
+    </div>
+    <div class="app-card" style="border-left:3px solid #FFD700;">
+        <span class="app-icon">♿</span>
+        <h4>Accessibility</h4>
+        <p>Help people with autism or social difficulties understand and respond to facial cues.</p>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── Tech Stack ── -->
+<p class="section-title">Technical Details</p>
+<div class="tech-grid fade-in">
+    <div class="tech-card">
+        <h4>Model Architecture</h4>
+        <ul>
+            <li>3 Convolutional Blocks (32→64→128 filters)</li>
+            <li>Batch Normalization after each conv layer</li>
+            <li>MaxPooling for spatial downsampling</li>
+            <li>Dropout for regularization (0.25–0.5)</li>
+            <li>Dense layers (256 → 128 → 7)</li>
+            <li>Softmax output for 7 classes</li>
+        </ul>
+    </div>
+    <div class="tech-card">
+        <h4>Dataset — FER-2013</h4>
+        <ul>
+            <li>35,887 labeled face images</li>
+            <li>48 × 48 pixels, grayscale</li>
+            <li>7 emotion categories</li>
+            <li>Split: Train / Validation / Test</li>
+            <li>Data augmentation applied</li>
+            <li>Source: Kaggle</li>
+        </ul>
+    </div>
+    <div class="tech-card">
+        <h4>Backend Stack</h4>
+        <ul>
+            <li>Python 3.9</li>
+            <li>TensorFlow / Keras — model inference</li>
+            <li>OpenCV — face detection + preprocessing</li>
+            <li>Flask — web server and API routes</li>
+            <li>Haar Cascade — face localisation</li>
+        </ul>
+    </div>
+    <div class="tech-card">
+        <h4>Frontend Stack</h4>
+        <ul>
+            <li>Pure HTML5 — structure</li>
+            <li>CSS3 — styling and animations</li>
+            <li>Vanilla JavaScript — interactivity</li>
+            <li>Fetch API — async communication</li>
+            <li>No external JS frameworks needed</li>
+        </ul>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── CTA ── -->
+<div class="cta-banner fade-in">
+    <h2>Ready to Try It?</h2>
+    <p>Start detecting emotions from your webcam or an uploaded image right now.</p>
+    <div class="cta-buttons">
+        <a href="/live"   class="btn btn-primary btn-lg">🎥 Live Detection</a>
+        <a href="/upload" class="btn btn-secondary btn-lg">🖼️ Upload Image</a>
+    </div>
+</div>
+
+{% endblock %}

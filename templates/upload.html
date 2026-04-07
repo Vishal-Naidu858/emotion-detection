@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Upload Image — Emotion AI{% endblock %}
+
+{% block extra_css %}
+<style>
+.upload-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* ── Drop Zone ── */
+.drop-zone {
+    background: var(--bg-card);
+    border: 2px dashed rgba(255,255,255,0.12);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+}
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(255,215,0,0.04);
+    transform: scale(1.01);
+}
+.drop-zone .drop-icon   { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+.drop-zone h3           { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 0.5rem; }
+.drop-zone p            { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.drop-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+
+/* ── Preview ── */
+.preview-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.preview-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+}
+.preview-body {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+    min-height: 280px;
+    position: relative;
+}
+#previewImg, #resultImg {
+    max-width: 100%; max-height: 360px;
+    object-fit: contain;
+    display: none;
+}
+#previewImg.visible, #resultImg.visible { display: block; }
+.preview-placeholder {
+    color: var(--text-muted); text-align: center;
+}
+.preview-placeholder .icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+
+/* ── Loading Overlay ── */
+.loading-overlay {
+    position: absolute; inset: 0;
+    background: rgba(5,5,15,0.85);
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1rem; color: var(--text-muted);
+    border-radius: var(--radius-lg);
+}
+.loading-overlay.active { display: flex; }
+
+/* ── Results ── */
+.results-section { margin-top: 2rem; }
+.results-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 1.2rem;
+}
+
+.result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    animation: fadeIn 0.4s ease;
+}
+.result-card-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+.result-emoji  { font-size: 3.5rem; line-height: 1; }
+.result-meta h3 {
+    font-family: var(--font-display);
+    font-size: 1.8rem; font-weight: 800;
+}
+.result-meta p  { color: var(--text-muted); font-size: 0.9rem; }
+
+.no-face-msg {
+    background: rgba(255,152,0,0.08);
+    border: 1px solid rgba(255,152,0,0.2);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--surprise);
+}
+.no-face-msg .icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+
+@media (max-width: 768px) {
+    .upload-layout { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header fade-in">
+    <h1>🖼️ <span class="accent">Upload</span> Image</h1>
+    <p>Detect emotions from any photo. Supports multiple faces.</p>
+</div>
+
+<div class="upload-layout">
+
+    <!-- ── Drop Zone ── -->
+    <div class="drop-zone fade-in" id="dropZone"
+         ondragover="handleDragOver(event)"
+         ondragleave="handleDragLeave(event)"
+         ondrop="handleDrop(event)">
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+        <span class="drop-icon">📁</span>
+        <h3>Drop your image here</h3>
+        <p>or click to browse files</p>
+        <div class="btn btn-primary">Choose Image</div>
+        <div style="margin-top:1rem; color:var(--text-muted); font-size:0.8rem;">
+            Supports JPG · PNG · WEBP
+        </div>
+    </div>
+
+    <!-- ── Preview Panel ── -->
+    <div class="preview-panel fade-in">
+        <div class="preview-header" id="previewTitle">Original Image</div>
+        <div class="preview-body">
+            <div class="preview-placeholder" id="previewPlaceholder">
+                <span class="icon">🖼️</span>
+                <span>Image preview appears here</span>
+            </div>
+            <img id="previewImg" alt="Preview">
+            <img id="resultImg"  alt="Result">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <span>Analyzing image...</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Action Buttons ── -->
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem;" class="fade-in">
+    <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeImage()" style="display:none;">
+        🔍 Detect Emotions
+    </button>
+    <button class="btn btn-secondary" id="resetBtn"   onclick="resetAll()"    style="display:none;">
+        🔄 Upload New Image
+    </button>
+    <a class="btn btn-success"   id="downloadBtn" href="#"                  style="display:none;"
+       download="emotion_result.jpg">
+        ⬇️ Download Result
+    </a>
+</div>
+
+<!-- ── Results ── -->
+<div class="results-section fade-in" id="resultsSection" style="display:none;"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const EMOTION_COLORS = {
+    'Angry':'#FF4444','Disgust':'#4CAF50','Fear':'#9C27B0',
+    'Happy':'#FFD700','Sad':'#2196F3','Surprise':'#FF9800','Neutral':'#9E9E9E'
+};
+const EMOTION_EMOJI = {
+    'Angry':'😠','Disgust':'🤢','Fear':'😨','Happy':'😊',
+    'Sad':'😢','Surprise':'😮','Neutral':'😐'
+};
+
+let selectedFile = null;
+
+/* ── Drag & Drop ── */
+function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+    document.getElementById('dropZone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadPreview(file);
+}
+function handleFile(e) {
+    const file = e.target.files[0];
+    if (file) loadPreview(file);
+}
+
+function loadPreview(file) {
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('previewPlaceholder').style.display = 'none';
+        document.getElementById('resultImg').classList.remove('visible');
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('previewImg').classList.add('visible');
+        document.getElementById('previewTitle').textContent = 'Original Image';
+        document.getElementById('analyzeBtn').style.display  = 'inline-flex';
+        document.getElementById('resetBtn').style.display    = 'inline-flex';
+        document.getElementById('downloadBtn').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function analyzeImage() {
+    if (!selectedFile) return;
+
+    // Show loading
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('analyzeBtn').disabled = true;
+
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+
+    try {
+        const res  = await fetch('/predict_image', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        document.getElementById('loadingOverlay').classList.remove('active');
+
+        if (data.error) {
+            showError(data.error);
+            return;
+        }
+
+        // Show annotated result image
+        document.getElementById('previewImg').classList.remove('visible');
+        document.getElementById('resultImg').src = data.image;
+        document.getElementById('resultImg').classList.add('visible');
+        document.getElementById('previewTitle').textContent = '🎯 Detection Result';
+
+        // Download button
+        document.getElementById('downloadBtn').href = data.image;
+        document.getElementById('downloadBtn').style.display = 'inline-flex';
+        document.getElementById('analyzeBtn').style.display  = 'none';
+
+        // Show results
+        showResults(data.results, data.count);
+
+    } catch(e) {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        showError('Something went wrong. Please try again.');
+    }
+
+    document.getElementById('analyzeBtn').disabled = false;
+}
+
+function showResults(results, count) {
+    const section = document.getElementById('resultsSection');
+    section.style.display = 'block';
+
+    if (count === 0) {
+        section.innerHTML = `
+            <div class="no-face-msg">
+                <span class="icon">👤</span>
+                <strong>No face detected</strong>
+                <p style="margin-top:0.4rem; font-size:0.9rem;">
+                    Try an image with a clearly visible face, better lighting,
+                    or face looking towards the camera.
+                </p>
+            </div>`;
+        return;
+    }
+
+    let html = `<h2>✅ ${count} Face${count > 1 ? 's' : ''} Detected</h2>
+                <div class="grid-${Math.min(count, 3)}">`;
+
+    results.forEach((r, i) => {
+        const color = EMOTION_COLORS[r.emotion];
+        const emoji = EMOTION_EMOJI[r.emotion];
+        const sorted = Object.entries(r.all_probs).sort((a,b) => b[1]-a[1]);
+
+        html += `
+        <div class="result-card" style="border-color:${color}44;">
+            <div class="result-card-header">
+                <div class="result-emoji">${emoji}</div>
+                <div class="result-meta">
+                    <h3 style="color:${color};">${r.emotion}</h3>
+                    <p>Face ${i+1} · ${r.confidence.toFixed(1)}% confidence</p>
+                </div>
+            </div>
+            <div>
+                ${sorted.map(([emo, prob]) => `
+                <div class="prob-bar-wrap">
+                    <div class="prob-bar-label">
+                        <span>${EMOTION_EMOJI[emo]} ${emo}</span>
+                        <span>${prob.toFixed(1)}%</span>
+                    </div>
+                    <div class="prob-bar-track">
+                        <div class="prob-bar-fill"
+                             style="width:${prob}%; background:${EMOTION_COLORS[emo]};">
+                        </div>
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>`;
+    });
+
+    html += '</div>';
+    section.innerHTML = html;
+}
+
+function showError(msg) {
+    document.getElementById('resultsSection').style.display = 'block';
+    document.getElementById('resultsSection').innerHTML = `
+        <div class="alert alert-error">❌ ${msg}</div>`;
+}
+
+function resetAll() {
+    selectedFile = null;
+    document.getElementById('fileInput').value      = '';
+    document.getElementById('previewImg').src        = '';
+    document.getElementById('previewImg').classList.remove('visible');
+    document.getElementById('resultImg').src         = '';
+    document.getElementById('resultImg').classList.remove('visible');
+    document.getElementById('previewPlaceholder').style.display = 'block';
+    document.getElementById('previewTitle').textContent = 'Original Image';
+    document.getElementById('analyzeBtn').style.display  = 'none';
+    document.getElementById('resetBtn').style.display    = 'none';
+    document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+}
+</script>
+{% endblock %}

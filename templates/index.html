@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Emotion Detection System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Hero ──────────────────────────────────────────── */
+.hero {
+    text-align: center;
+    padding: 5rem 1rem 4rem;
+    animation: fadeIn 0.7s ease;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.25);
+    color: var(--accent);
+    font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.4rem 1.1rem;
+    border-radius: 99px;
+    margin-bottom: 2rem;
+}
+
+.hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 1.2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #FFD700 60%, #FF9800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 480px;
+    margin: 0 auto 2.8rem;
+    line-height: 1.7;
+}
+
+.hero-emoji-row {
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    margin-bottom: 1rem;
+    animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+}
+
+.hero-buttons {
+    display: flex; gap: 1rem;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 4rem;
+}
+
+/* ── Emotion Cards Grid ─────────────────────────────── */
+.emotions-section {
+    margin-bottom: 4rem;
+}
+.emotions-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.emotion-cards {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.8rem;
+}
+
+.emotion-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 0.5rem;
+    text-align: center;
+    transition: all var(--transition);
+    cursor: default;
+}
+.emotion-card:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.emotion-card .emoji { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.emotion-card .name  {
+    font-size: 0.78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* ── Feature Cards ──────────────────────────────────── */
+.features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all var(--transition);
+    position: relative; overflow: hidden;
+}
+.feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.feature-card.cam::before  { background: linear-gradient(90deg, var(--happy), var(--surprise)); }
+.feature-card.img::before  { background: linear-gradient(90deg, var(--sad), var(--fear)); }
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.feature-card .icon   { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+.feature-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 700;
+    margin-bottom: 0.7rem;
+}
+.feature-card p { color: var(--text-muted); margin-bottom: 1.8rem; line-height: 1.6; }
+
+/* ── Stats Row ──────────────────────────────────────── */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 4rem;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+}
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 2rem; font-weight: 800;
+    color: var(--accent);
+}
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+@media (max-width: 768px) {
+    .emotion-cards { grid-template-columns: repeat(4,1fr); }
+    .features      { grid-template-columns: 1fr; }
+    .stats         { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+    .emotion-cards { grid-template-columns: repeat(3,1fr); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="hero-badge">🤖 AI-Powered · Real-Time · 7 Emotions</div>
+    <h1>Emotion<br>Detection System</h1>
+    <p class="hero-sub">Analyze human emotions instantly from your webcam or any image using deep learning.</p>
+    <div class="hero-emoji-row">😠 🤢 😨 😊 😢 😮 😐</div>
+    <div class="hero-buttons">
+        <a href="/live"   class="btn btn-primary btn-lg">🎥 Start Live Detection</a>
+        <a href="/upload" class="btn btn-secondary btn-lg">🖼️ Upload Image</a>
+    </div>
+</section>
+
+<!-- ── Emotion Grid ── -->
+<section class="emotions-section fade-in">
+    <h2>Detectable Emotions</h2>
+    <div class="emotion-cards">
+        <div class="emotion-card" style="border-color:rgba(255,68,68,0.3);">
+            <span class="emoji">😠</span>
+            <span class="name" style="color:#FF4444;">Angry</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(76,175,80,0.3);">
+            <span class="emoji">🤢</span>
+            <span class="name" style="color:#4CAF50;">Disgust</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(156,39,176,0.3);">
+            <span class="emoji">😨</span>
+            <span class="name" style="color:#9C27B0;">Fear</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(255,215,0,0.3);">
+            <span class="emoji">😊</span>
+            <span class="name" style="color:#FFD700;">Happy</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(33,150,243,0.3);">
+            <span class="emoji">😢</span>
+            <span class="name" style="color:#2196F3;">Sad</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(255,152,0,0.3);">
+            <span class="emoji">😮</span>
+            <span class="name" style="color:#FF9800;">Surprise</span>
+        </div>
+        <div class="emotion-card" style="border-color:rgba(158,158,158,0.3);">
+            <span class="emoji">😐</span>
+            <span class="name" style="color:#9E9E9E;">Neutral</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── Feature Cards ── -->
+<section class="features fade-in">
+    <div class="feature-card cam">
+        <span class="icon">🎥</span>
+        <h3>Live Detection</h3>
+        <p>Real-time emotion detection using your webcam. Instant results with confidence scores and probability breakdown.</p>
+        <a href="/live" class="btn btn-primary btn-full">Start Camera</a>
+    </div>
+    <div class="feature-card img">
+        <span class="icon">🖼️</span>
+        <h3>Image Upload</h3>
+        <p>Upload any photo to detect emotions from all faces. Supports multiple faces and instant download of results.</p>
+        <a href="/upload" class="btn btn-secondary btn-full">Upload Image</a>
+    </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="stats fade-in">
+    <div class="stat-card">
+        <div class="stat-value">7</div>
+        <div class="stat-label">Emotion Classes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">35K+</div>
+        <div class="stat-label">Training Images</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">CNN</div>
+        <div class="stat-label">Architecture</div>
+    </div>
+</section>
+
+{% endblock %}

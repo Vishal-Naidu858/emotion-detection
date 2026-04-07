@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Emotion Detection System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ── Animated background grid ── -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <!-- ── Navigation ── -->
+    <nav class="navbar">
+        <a href="/" class="nav-logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">EmotionAI</span>
+        </a>
+        <div class="nav-links">
+            <a href="/"       class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+            <a href="/live"   class="nav-link {% if request.path == '/live' %}active{% endif %}">Live Detection</a>
+            <a href="/upload" class="nav-link {% if request.path == '/upload' %}active{% endif %}">Upload Image</a>
+            <a href="/about"  class="nav-link {% if request.path == '/about' %}active{% endif %}">About</a>
+        </div>
+        <button class="nav-hamburger" onclick="toggleMenu()">☰</button>
+    </nav>
+
+    <!-- ── Mobile Menu ── -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="/"       class="mobile-link">🏠 Home</a>
+        <a href="/live"   class="mobile-link">🎥 Live Detection</a>
+        <a href="/upload" class="mobile-link">🖼️ Upload Image</a>
+        <a href="/about"  class="mobile-link">ℹ️ About</a>
+    </div>
+
+    <!-- ── Page Content ── -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="footer">
+        <p>Built with TensorFlow · OpenCV · Flask &nbsp;|&nbsp; FER-2013 Dataset</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('open');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
